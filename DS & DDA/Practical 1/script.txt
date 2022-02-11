@@ -1,0 +1,90 @@
+CREATE TABLE department(
+    DeptNo varchar(20) PRIMARY KEY,
+    DeptName char(20),
+    Location varchar(20)
+);
+
+CREATE TABLE employee (
+    EmpNo varchar(20),
+    fname char(20),
+    lname char(20),
+    address varchar(40),
+    salary integer,
+    DeptNo varchar(20),
+    PRIMARY KEY(empNo)
+);
+
+ALTER TABLE employee
+ADD CONSTRAINT fk_employedepartment
+FOREIGN KEY(deptNo) REFERENCES department;
+
+CREATE TABLE project (
+    ProjNo char(5) PRIMARY KEY,
+    Project_Name varchar(20),
+    DeptNo varchar(20),
+    FOREIGN KEY(deptNo) REFERENCES department(deptNo)
+    
+);
+
+CREATE TABLE works_On(
+    EmpNo varchar(20),
+    ProjNo char(5),
+    DateWorked date,
+    Hours number(2),
+    PRIMARY KEY(EmpNo,ProjNo,DateWorked),
+    FOREIGN KEY(EmpNo) REFERENCES employee(empNo) ON DELETE SET NULL,
+    FOREIGN KEY(projNo) REFERENCES  project(projNo) ON DELETE SET NULL
+    
+);
+
+
+
+INSERT INTO department VALUES('001', 'Accounts', 'Bangalore');
+INSERT INTO department VALUES('002', 'IT', 'Mumbai');
+INSERT INTO department VALUES('003', 'ECE', 'Mumbai');
+INSERT INTO department VALUES('004', 'ISE', 'Mumbai');
+INSERT INTO department VALUES('005', 'CSE', 'Delhi');
+
+
+
+
+
+
+
+
+INSERT INTO employee VALUES('Emp01', 'John', 'Scott', 'Mysore', '45000', '003');
+INSERT INTO employee VALUES('Emp02', 'James', 'Smith', 'Bangalore', '50000', '005');
+INSERT INTO employee VALUES('Emp03', 'Edward', 'Hedge', 'Bangalore', '65000', '002');
+INSERT INTO employee VALUES('Emp04', 'Santhosh', 'Kumar', 'Delhi', '80000', '002');
+INSERT INTO employee VALUES('Emp05', 'Veena', 'M', 'Mumbai', '45000', '004');
+
+INSERT INTO  project VALUES('P01', 'IOT', '005');
+INSERT INTO  project VALUES('P02', 'Cloud', '005');
+INSERT INTO  project VALUES('P03', 'BankMgmt', '004');
+INSERT INTO  project VALUES('P04', 'Sensors', '003');
+INSERT INTO  project VALUES('P05', 'BigData', '002');
+
+INSERT INTO works_on VALUES('Emp02', 'P03', '02-OCT-2018', '4');
+INSERT INTO works_on VALUES('Emp01', 'P02', '22-JAN-2014', '13');
+INSERT INTO works_on VALUES('Emp02', 'P02', '19-JUN-2020', '15');
+INSERT INTO works_on VALUES('Emp02', 'P01', '11-JUN-2020', '10');
+INSERT INTO works_on VALUES('Emp01', 'P04', '08-FEB-2009', '6');
+INSERT INTO works_on VALUES('Emp02', 'P01', '18-OCT-2018', '18');
+INSERT INTO works_on VALUES('Emp01', 'P05', '02-SEP-2011', '7');
+
+
+--a. Retrieve the name and address of all employees who work for the ‘IT’ department
+SELECT CONCAT(e.fname,e.lname) as Name , address FROM employee e, department d
+WHERE e.deptNo = d.deptNo and DeptName='IT';
+
+--b. Retrieve the salary of every employee and all distinct salary values
+SELECT DISTINCT salary FROM employee
+
+--c. Retrieve the names of all employees in department 005 who work more than 10 hours per
+--week on the P01 project.
+select e.fname, e.lname
+from Employee e, works_on w, Project p
+where e.DeptNo = '005' AND e.EmpNo = w.EmpNo AND w.ProjNo = p.ProjNo AND p.ProjNo = 'P01' AND w.Hours>10
+
+--d. Retrieve a list of employees and the projects they are working on, ordered by department
+--and, within each department, ordered alphabetically by last name, then first name.
