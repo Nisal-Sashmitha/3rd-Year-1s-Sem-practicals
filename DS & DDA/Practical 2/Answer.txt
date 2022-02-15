@@ -1,1 +1,22 @@
+--(a) Write Oracle OR-SQL statements to develop the above database schema.
+
+-- creating emp_t object
+CREATE TYPE Emp_t AS OBJECT(
+    eno NUMBER(4),
+    ename VARCHAR2(15),
+    salary NUMBER(8,2)
+);
+
+-- creating dept_t object
+
+CREATE TYPE Dept_t AS OBJECT(
+    dno NUMBER(2),
+    dname VARCHAR2(12),
+    mgr REF emp_t
+);
+
+
+-- alter emp_t object to add dept_t reference
+ALTER TYPE Emp_t
+ADD ATTRIBUTE edept ref Dept_t CASCADE;
 
