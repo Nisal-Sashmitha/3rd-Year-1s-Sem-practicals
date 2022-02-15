@@ -25,3 +25,18 @@ CREATE TABLE Emp OF Emp_t (eno PRIMARY KEY);
 CREATE TABLE Dept OF Dept_t (dno PRIMARY KEY);
 
 CREATE TABLE Proj OF Proj_t (pno PRIMARY KEY);
+
+
+--Inserting data into tables
+
+INSERT INTO dept VALUES (Dept_t('1','IT',null))
+INSERT INTO emp VALUES (Emp_t('1','Kasun',10000,(SELECT REF(d) FROM dept d WHERE d.dno = '1')))
+
+UPDATE dept d
+SET mgr = (SELECT REF(e)
+               FROM emp e
+               WHERE e.eno = 1)
+WHERE d.dno = 1;
+
+SELECT e.eno,e.ename,e.salary, e.edept.dno FROM emp e
+SELECT d.dno,d.dname,d.mgr.eno FROM dept d 
