@@ -19,3 +19,8 @@ CREATE TYPE Patient_t AS OBJECT(
     phone CHAR(10),
     hospVisits HospitalVisit_tlb
 );
+
+CREATE TABLE Doctors OF Doctor_t(regNo PRIMARY KEY);
+
+CREATE TABLE Patients OF Patient_t(ID PRIMARY KEY)
+NESTED TABLE hospVisits STORE AS hospVis_ntb;
