@@ -1,0 +1,21 @@
+CREATE TYPE Doctor_t AS OBJECT(
+    regNo CHAR(10),
+    name VARCHAR2(50),
+    specialization VARCHAR2(25)
+);
+
+CREATE TYPE HospitalVisit_t AS OBJECT(
+    hosChg FLOAT,
+    vDate DATE,
+    refDoc REF Doctor_t,
+    docChg FLOAT
+);
+
+CREATE TYPE HospitalVisit_tlb AS TABLE OF HospitalVisit_t;
+CREATE TYPE Patient_t AS OBJECT(
+    id CHAR(10),
+    name VARCHAR2(50),
+    dateofBirth DATE, 
+    phone CHAR(10),
+    hospVisits HospitalVisit_tlb
+);
