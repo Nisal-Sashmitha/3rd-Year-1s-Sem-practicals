@@ -21,15 +21,20 @@ CREATE TYPE Proj_t AS OBJECT (
 
 
 
--- alter emp_t object to add dept_t reference
-ALTER TYPE Emp_t
-ADD ATTRIBUTE edept ref Dept_t CASCADE;
-
-CREATE TABLE Emp OF Emp_t (eno PRIMARY KEY);
-
 CREATE TABLE Dept OF Dept_t (dno PRIMARY KEY);
 
-CREATE TABLE Proj OF Proj_t (pno PRIMARY KEY);
+CREATE TABLE Emp OF Emp_t (
+    eno PRIMARY KEY,
+    CONSTRAINT emp_fk FOREIGN KEY (edept) REFERENCES Dept
+);
+
+ALTER TABLE Dept
+ADD CONSTRAINT dept_fk FOREIGN KEY (mgr) REFERENCES Emp
+
+CREATE TABLE Proj OF Proj_t (
+    pno PRIMARY KEY,
+    CONSTRAINT Proj_fk FOREIGN KEY (pdept) REFERENCES Dept
+);
 
 
 --Inserting data into tables
