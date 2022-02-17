@@ -1,19 +1,24 @@
 --(a) Write Oracle OR-SQL statements to develop the above database schema.
+create type dept_t
 
--- creating emp_t object
 CREATE TYPE Emp_t AS OBJECT(
     eno NUMBER(4),
     ename VARCHAR2(15),
+    edept ref Dept_t,
     salary NUMBER(8,2)
 );
-
--- creating dept_t object
-
 CREATE TYPE Dept_t AS OBJECT(
     dno NUMBER(2),
     dname VARCHAR2(12),
     mgr REF emp_t
 );
+CREATE TYPE Proj_t AS OBJECT (
+    pno number(4),
+    pname VARCHAR2(15),
+    pdept ref dept_t,
+    budget number(10,2)
+);
+
 
 
 -- alter emp_t object to add dept_t reference
