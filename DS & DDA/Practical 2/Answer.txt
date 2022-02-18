@@ -23,30 +23,77 @@ CREATE TYPE Proj_t AS OBJECT (
 
 CREATE TABLE Dept OF Dept_t (dno PRIMARY KEY);
 
-CREATE TABLE Emp OF Emp_t (
-    eno PRIMARY KEY,
-    CONSTRAINT emp_fk FOREIGN KEY (edept) REFERENCES Dept
-);
+CREATE TABLE Emp OF Emp_t (eno PRIMARY KEY);
 
-ALTER TABLE Dept
-ADD CONSTRAINT dept_fk FOREIGN KEY (mgr) REFERENCES Emp
+CREATE TABLE Proj OF Proj_t (pno PRIMARY KEY);
 
-CREATE TABLE Proj OF Proj_t (
-    pno PRIMARY KEY,
-    CONSTRAINT Proj_fk FOREIGN KEY (pdept) REFERENCES Dept
-);
+INSERT INTO emp VALUES (Emp_t('1','Kasun',null,10000))
+INSERT INTO emp VALUES (Emp_t('2','kamal',null,60000))
+INSERT INTO emp VALUES (Emp_t('3','sunil',null,70000))
 
 
---Inserting data into tables
+INSERT INTO dept VALUES (Dept_t('10','IT',(select ref(e) from emp e where e.eno = 1)))
+INSERT INTO dept VALUES (Dept_t('11','DS',(select ref(e) from emp e where e.eno = 2)))
+INSERT INTO dept VALUES (Dept_t('12','SE',(select ref(e) from emp e where e.eno = 3)))
 
-INSERT INTO dept VALUES (Dept_t('1','IT',null))
-INSERT INTO emp VALUES (Emp_t('1','Kasun',10000,(SELECT REF(d) FROM dept d WHERE d.dno = '1')))
 
-UPDATE dept d
-SET mgr = (SELECT REF(e)
-               FROM emp e
-               WHERE e.eno = 1)
-WHERE d.dno = 1;
 
-SELECT e.eno,e.ename,e.salary, e.edept.dno FROM emp e
-SELECT d.dno,d.dname,d.mgr.eno FROM dept d 
+INSERT INTO emp VALUES (Emp_t('4','chamal',(SELECT REF(d) FROM dept d WHERE d.dno = 12),60000))
+INSERT INTO emp VALUES (Emp_t('5','kalum',(SELECT REF(d) FROM dept d WHERE d.dno = 11),70000))
+INSERT INTO proj VALUES (proj_t(5000,'Proj1',(SELECT REF(d) FROM dept d WHERE d.dno = 10),100000))
+
+INSERT INTO proj VALUES (proj_t(5000,'Proj1',(SELECT REF(d) FROM dept d WHERE d.dno = 10),100000))
+INSERT INTO proj VALUES (proj_t(5001,'Proj2',(SELECT REF(d) FROM dept d WHERE d.dno = 10),50000))
+INSERT INTO proj VALUES (proj_t(5002,'Proj3',(SELECT REF(d) FROM dept d WHERE d.dno = 11),40000))
+
+update emp e
+set e.edept = (select ref(d) from dept d where d.dno=10)
+where e.eno = 3
+
+update emp e
+set e.edept = (select ref(d) from dept d where d.dno = 11)
+where e.eno =1
+
+update emp e
+set e.edept = (select ref(d) from dept d where d.dno = 10)
+where e.eno =3
+
+update emp e
+set e.edept = (select ref(d) from dept d where d.dno = 12)
+where e.eno =4
+
+update emp e
+set e.edept = (select ref(d) from dept d where d.dno = 11)
+where e.eno =5
+
+
+
+--Find the name and salary of managers of all departments. Display the department number,
+--manager name and salary.
+
+select d.dno, d.mgr.ename, d.mgr.salary From dept d 
+
+--For projects that have budgets over $50000, get the project name, and the name of the manager
+-- of the department in charge of the project.
+select p.pname, p.pdept.mgr.ename from proj p where budget>50000
+
+
+-- For departments that are in charge of projects, find the department number, department name and
+--total budget of all its projects together.
+
+select p.pdept.dno, p.pdept.dname,sum(p.budget) from proj p group by p.pdept,p.pdept.dno,p.pdept.dname
+
+--Find the manager’s name who is controlling the project with the largest budget
+
+select p.pdept.mgr.ename from proj p where p.budget = (select max(pp.budget) from proj pp)
+
+
+--Find the managers who control budget above $60,000. (Hint: The total amount a manager control
+--is the sum of budgets of all projects belonging to the dept(s) for which the he/she is managing). Print
+--the manager’s employee number and the total controlling budget.
+
+select p.pdept.dno, p.pdept.dname,sum(p.budget) from proj p group by p.pdept,p.pdept.dno,p.pdept.dname
+
+
+
+
