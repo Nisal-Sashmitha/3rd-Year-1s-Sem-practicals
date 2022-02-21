@@ -24,3 +24,30 @@ CREATE TABLE Doctors OF Doctor_t(regNo PRIMARY KEY);
 
 CREATE TABLE Patients OF Patient_t(ID PRIMARY KEY)
 NESTED TABLE hospVisits STORE AS hospVis_ntb;
+
+INSERT INTO Patient VALUES(Patient_t('732821122V', 'Sampath Weerasinghe' ,'23-JAN-73', '0332124222',
+	HospitalVisit_tlb(HospitalVisit_t('50.00', '24-MAY-06',
+		(SELECT Ref(d) FROM Doctor d WHERE d.regNo ='1223441234'),
+		'500.00')
+			)
+));
+
+INSERT INTO Patient VALUES(Patient_t('491221019V', 'Dulani Perera' ,'3-FEB-49', '0112233211',
+	HospitalVisit_tlb(
+        HospitalVisit_t('75.00', '25-MAY-06',
+		(SELECT Ref(d) FROM Doctor d WHERE d.regNo ='2342111322'),
+		'550.00'),
+        
+		HospitalVisit_t('90.00', '29-MAY-06',
+		(SELECT Ref(d) FROM Doctor d WHERE d.regNo ='2344114344'),
+		'300.00')
+			)
+));
+
+
+-- a. Print the total amount spent by patient (id = 732821122V) on hospital
+SELECT sum(hosChg+docChg) FROM TABLE(SELECT p.hospVisits FROM Patient p WHERE p.id = '732821122V')
+
+-- b. Print the number of patients who have channeled “Prof. S. Fernando”.
+SELECT COUNT(distinct pt.id) AS number_of_patients FROM Patient pt,TABLE(SELECT p.hospVisits FROM Patient p WHERE pt.id = p.id) s
+WHERE s.refDoc.name = 'Prof. S. Fernando' 
