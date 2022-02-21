@@ -51,3 +51,20 @@ SELECT sum(hosChg+docChg) FROM TABLE(SELECT p.hospVisits FROM Patient p WHERE p.
 -- b. Print the number of patients who have channeled “Prof. S. Fernando”.
 SELECT COUNT(distinct pt.id) AS number_of_patients FROM Patient pt,TABLE(SELECT p.hospVisits FROM Patient p WHERE pt.id = p.id) s
 WHERE s.refDoc.name = 'Prof. S. Fernando' 
+
+--c. How many patients have channeled a pediatrician?
+
+SELECT COUNT(distinct pt.id) AS number_of_patients FROM Patient pt,TABLE(SELECT p.hospVisits FROM Patient p WHERE pt.id = p.id) s
+WHERE s.refDoc.specialization = 'Pediatrician';
+
+--d. For each patient, print the total amount spent on doctor charges?
+
+SELECT pt.id,sum(s.docChg) AS Spent_On_Doc FROM Patient pt,TABLE(SELECT p.hospVisits FROM Patient p WHERE p.id = pt.id) s group by pt.id
+
+--e. Print the name of the doctor who has earned the more than Rs. 1000/- in total in doctor charges.
+
+SELECT s.refDoc.name,sum(s.docChg) FROM 
+Patient pt,TABLE(SELECT p.hospVisits FROM Patient p WHERE p.id = pt.id) s 
+group by s.refDoc.name
+having sum(s.docChg) > 1000
+
