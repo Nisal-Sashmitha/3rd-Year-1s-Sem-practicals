@@ -120,3 +120,9 @@ RETURN FLOAT IS
 		return rate* SELF.salary;
 	END bonusAmount;
 END;
+
+--(e) All employees in the department named ‘Data Mining’ are to be given a bonus at the rate of 12%. Write an
+--SQL statement to display the name of each eligible employee and the bonus, using the method for computing
+--bonus that was declared above.
+
+select e.ename, e.bonusAmount(12) from emp e WHERE e.edept.dname = 'Data Mining';
