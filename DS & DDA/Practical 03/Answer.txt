@@ -1,0 +1,97 @@
+CREATE TYPE Depend_t AS OBJECT(
+	depname varchar2(12),
+	gender char(1),
+	bdate DATE,
+	relationship varchar2(10)
+)
+CREATE TYPE Dependtb_t table of Depend_t
+
+CREATE TYPE Emp_t AS OBJECT(eno number(4), ename varchar2(15), edept ref dept_t, salary number(8,2),
+dependents dependtb_t)
+
+CREATE TYPE Dept_t AS OBJECT(dno number(2), dname varchar2(12), mgr ref emp_t)
+
+CREATE TYPE Proj_t AS OBJECT
+ (pno number(4),
+  pname varchar2(15),
+  pdept ref dept_t, 
+  budget number(10,2)
+)
+CREATE TYPE Work_t AS OBJECT
+(wemp ref emp_t,
+ wproj ref proj_t,
+ since date,
+ hours number(4,2))
+
+CREATE TABLE Emp of Emp_t (eno primary key)
+nested table dependents store as dependent_tb
+
+CREATE TABLE Dept of Dept_t(
+	dno primary key,
+	mgr references Emp
+)
+ALTER TABLE Emp
+ ADD FOREIGN KEY (edept) REFERENCES Dept;
+
+CREATE TABLE Proj of Proj_t(pno primary key,pdept references dept)
+
+CREATE TABLE Works of Work_t (wemp references emp, wproj references proj)
+
+
+INSERT INTO Dept VALUES('10','IT',null)
+INSERT INTO Emp VALUES(Emp_t(1,'Amal',
+			(SELECT REF(d) FROM Dept d where d.dno = '10'),
+			100000,
+			Dependtb_t(Depend_t('Senura','M','20-JUNE-2008','CHILD')
+
+)))
+
+UPDATE dept d
+set d.mgr = (SELECT REF(e) FROM emp e where e.eno=1 )
+WHERE d.dno='10'
+
+INSERT INTO Emp VALUES(Emp_t(2,'Kamal',
+			(SELECT REF(d) FROM Dept d where d.dno = '11'),
+			75000,
+			Dependtb_t(Depend_t('Chamara','M','20-JUNE-2008','CHILD'))))
+
+INSERT INTO Dept VALUES('11','SE',null)
+
+
+
+--(a)Add a member method to compute the child allowance payable to employees with dependent children. The
+--allowance is calculated at the rate of 5% of salary for each dependent child. Write Oracle SQL statements to
+--modify the object type emp_t.
+
+ALTER TYPE emp_t
+     ADD MEMBER FUNCTION chiledAllowance
+     RETURN FLOAT CASCADE;	
+
+CREATE OR REPLACE TYPE BODY emp_t AS 
+MEMBER FUNCTION 
+chiledAllowance 
+RETURN FLOAT IS 
+	count1 INTEGER;
+	BEGIN 
+		SELECT COUNT(d.depname) INTO count1
+		FROM TABLE(SELF.dependents) d
+		WHERE d.relationship = 'CHILD';			
+		RETURN count1 * 0.05* SELF.salary ; 
+	END chiledAllowance;
+
+END; 
+
+
+--(b)Using the method defined above, write an Oracle SQL statement to display the employee name, salary and
+--the child allowance payable for all eligible employees.
+
+ SELECT e.chiledAllowance() from emp e;
+
+SELECT e.ename, e.salary, e.chiledAllowance()
+FROM emp e WHERE e.dependents = not null
+
+--(c) Write an SQL statement to insert a dependent child for the employee whose eno is 2143. The name of the
+--child is Jeremy, gender ‘M’, and the date of birth 12 March 2001.
+
+INSERT INTO TABLE(SELECT E.dependents from emp e where e.eno = '2')
+VALUES('jeremy','M','12-MAR-2001','CHILD')
