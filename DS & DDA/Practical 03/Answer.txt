@@ -93,5 +93,30 @@ FROM emp e WHERE e.dependents = not null
 --(c) Write an SQL statement to insert a dependent child for the employee whose eno is 2143. The name of the
 --child is Jeremy, gender ‘M’, and the date of birth 12 March 2001.
 
-INSERT INTO TABLE(SELECT E.dependents from emp e where e.eno = '2')
+INSERT INTO TABLE(SELECT E.dependents from emp e where e.eno = '2143')
 VALUES('jeremy','M','12-MAR-2001','CHILD')
+
+--(d)Assuming the same object relational schema as above, write a method to compute the bonus amount of
+--employees, assuming that it is to be calculated by multiplying the salary with a rate percentage given as a
+--parameter.
+ALTER TYPE emp_t
+ADD MEMBER FUNCTION bonusAmount(rate FLOAT)
+RETURN FLOAT CASCADE;
+
+CREATE OR REPLACE TYPE BODY emp_t AS
+MEMBER FUNCTION 
+chiledAllowance 
+RETURN FLOAT IS 
+	count1 INTEGER;
+	BEGIN 
+		SELECT COUNT(d.depname) INTO count1
+		FROM TABLE(SELF.dependents) d
+		WHERE d.relationship = 'CHILD';			
+		RETURN count1 * 0.05* SELF.salary ; 
+	END chiledAllowance;
+MEMBER FUNCTION bonusAmount(rate FLOAT)
+RETURN FLOAT IS 
+	BEGIN
+		return rate* SELF.salary;
+	END bonusAmount;
+END;
