@@ -4,7 +4,7 @@ CREATE TYPE Depend_t AS OBJECT(
 	bdate DATE,
 	relationship varchar2(10)
 )
-CREATE TYPE Dependtb_t table of Depend_t
+CREATE TYPE Dependtb_t AS table of Depend_t
 
 CREATE TYPE Emp_t AS OBJECT(eno number(4), ename varchar2(15), edept ref dept_t, salary number(8,2),
 dependents dependtb_t)
