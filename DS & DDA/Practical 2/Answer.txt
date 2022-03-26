@@ -80,12 +80,20 @@ select p.pname, p.pdept.mgr.ename from proj p where budget>50000
 
 -- For departments that are in charge of projects, find the department number, department name and
 --total budget of all its projects together.
-
+--way 1
 select p.pdept.dno, p.pdept.dname,sum(p.budget) from proj p group by p.pdept,p.pdept.dno,p.pdept.dname
+
+--way 2
+SELECT p.pdept.dno, p.pdept.dname,sum(p.budget) FROM proj p
+GROUP BY p.pdept;
 
 --Find the manager’s name who is controlling the project with the largest budget
 
 select p.pdept.mgr.ename from proj p where p.budget = (select max(pp.budget) from proj pp)
+--second attempt(i think this is the correct answer)
+SELECT p.pdept.mgr.eno,  sum(p.budget) FROM proj p
+GROUP BY p.pdept
+HAVING sum(p.budget)=(SELECT MAX(x.budget) FROM (SELECT sum(p.budget) AS budget FROM proj p GROUP BY p.pdept,p.pdept.mgr.eno) x);
 
 
 --Find the managers who control budget above $60,000. (Hint: The total amount a manager control
