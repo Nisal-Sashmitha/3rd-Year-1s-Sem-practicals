@@ -1,0 +1,153 @@
+CREATE TYPE student_t AS OBJECT(
+    sno CHAR(5),
+    sname VARCHAR2(30),
+    gpa FLOAT
+);
+
+CREATE TABLE student OF student_t;
+
+DESC student_t;
+select * from student;
+
+INSERT INTO student VALUES(student_t('s123','Saman',2.5));
+
+select * from student;
+
+select value(s) from student s;
+
+CREATE TYPE dept_t AS OBJECT(
+    dno CHAR(5),
+    dname VARCHAR2(30)
+);
+
+
+CREATE TYPE emp_t AS OBJECT(
+    eno CHAR(5),
+    ename VARCHAR2(30),
+    addr VARCHAR2(30),
+    workdept REF dept_t
+);
+
+CREATE TABLE dept OF dept_t(dno PRIMARY KEY);
+drop table dept;
+CREATE TABLE emp OF emp_t(eno PRIMARY KEY);
+
+INSERT INTO dept VALUES(dept_t('D10','SE'));
+INSERT INTO dept VALUES(dept_t('D20','DS'));
+
+select * from dept;
+
+Insert into emp values('1001','kasun','kandy',
+(SELECT ref(d) FROM dept d WHERE d.dno = 'D1'))
+
+select * from emp;
+
+UPDATE emp e
+SET workdept = (SELECT REF(d) FROM dept d WHERE d.dno = 'D10')
+WHERE e.eno = '1001'
+
+DROP TABLE DEPT;
+DROP TABLE EMP;
+DROP TABLE STUDENT;
+DROP TYPE DEPT_T;
+DROP TYPE EMP_T;
+DROP TYPE STUDENT_T;
+
+create type department_t AS OBJECT(
+    deptNo varchar(20),
+    deptname char(20),
+    location varchar(20)
+);
+
+create type employee_t AS OBJECT(
+    empNo varchar(20),
+    fname char(20),
+    lname char(20),
+    address varchar(40),
+    salary integer,
+    deptNo ref department_t
+);
+
+create type project_t as object(
+    projno char(5),
+    project_name varchar(20),
+    deptno ref department_t
+);
+
+create type works_on_t as object(
+    empno ref employee_t,
+    projno ref project_t,
+    dateworked date,
+    hours number(2)
+);
+
+create table department of department_t(deptNo primary key);
+
+create table employee of employee_t(empno primary key);
+
+create table project of project_t(projno primary key);
+
+create table works_on of works_on_t;
+
+INSERT INTO department values('001', 'Accounts', 'Bangalore');
+INSERT INTO department values('002', 'IT', 'Mumbai');
+INSERT INTO department values('003', 'ECE', 'Mumbai');
+INSERT INTO department values('004', 'ISE', 'Mumbai');
+INSERT INTO department values('005', 'CSE', 'Delhi');
+
+select * from department;
+
+INSERT INTO employee values('Emp01', 'John', 'Scott', 'Mysore', '45000', (SELECT REF(d) FROM department d WHERE d.deptno='003'));
+INSERT INTO employee values('Emp02', 'James', 'Smith', 'Bangalore', '50000', (SELECT REF(d) FROM department d WHERE d.deptno='005'));
+INSERT INTO employee values('Emp03', 'Edward', 'Hedge', 'Bangalore', '65000', (SELECT REF(d) FROM department d WHERE d.deptno='002'));
+INSERT INTO employee values('Emp04', 'Santhosh', 'Kumar', 'Delhi', '80000', (SELECT REF(d) FROM department d WHERE d.deptno='002'));
+INSERT INTO employee values('Emp05', 'Veena', 'M', 'Mumbai', '45000', (SELECT REF(d) FROM department d WHERE d.deptno='004'));
+
+select * from employee;
+
+delete from employee where empno = 'Emp01';
+                                                                    
+INSERT INTO project values('P01', 'IOT', (SELECT REF(d) FROM department d WHERE deptno = '005'));
+INSERT INTO project values('P02', 'Cloud', (SELECT REF(d) FROM department d WHERE deptno = '005'));
+INSERT INTO project values('P03', 'BankMgmt', (SELECT REF(d) FROM department d WHERE deptno = '004'));
+INSERT INTO project values('P04', 'Sensors', (SELECT REF(d) FROM department d WHERE deptno = '003'));
+INSERT INTO project values('P05', 'BigData', (SELECT REF(d) FROM department d WHERE deptno = '002'));
+
+SELECT * from project
+
+
+insert into works_on values((SELECT REF(e) FROM employee e WHERE empno  = 'Emp02'), (SELECT REF(p) FROM project p WHERE projno = 'P03'), '02-OCT-2018', '4');
+insert into works_on values((SELECT REF(e) FROM employee e WHERE empno  = 'Emp01'), (SELECT REF(p) FROM project p WHERE projno = 'P02'), '22-JAN-2014', '13');
+insert into works_on values((SELECT REF(e) FROM employee e WHERE empno  = 'Emp02'), (SELECT REF(p) FROM project p WHERE projno = 'P02'), '19-JUN-2020', '15');
+insert into works_on values((SELECT REF(e) FROM employee e WHERE empno  = 'Emp02'), (SELECT REF(p) FROM project p WHERE projno = 'P01'), '11-JUN-2020', '10');
+insert into works_on values((SELECT REF(e) FROM employee e WHERE empno  = 'Emp01'), (SELECT REF(p) FROM project p WHERE projno = 'P04'), '08-FEB-2009', '6');
+insert into works_on values((SELECT REF(e) FROM employee e WHERE empno  = 'Emp02'), (SELECT REF(p) FROM project p WHERE projno = 'P01'), '18-OCT-2018', '18');
+insert into works_on values((SELECT REF(e) FROM employee e WHERE empno  = 'Emp01'), (SELECT REF(p) FROM project p WHERE projno = 'P05'), '02-SEP-2011', '7');
+
+delete from works_on
+select * from works_on;
+select * from project;
+select * from employee;
+
+
+--(A)
+SELECT CONCAT(e.fname,e.lname) AS Name, e.address from employee e where e.deptno.DeptName = 'IT';
+
+--(B)
+select DISTINCT salary FROM employee;
+
+--(C)
+SELECT CONCAT(w.empno.fname,w.empno.lname), sum(w.hours) AS Name FROM  works_on w 
+WHERE w.hours>'10' and w.projno.deptno.deptno='005'
+group by w.empno.fname,w.empno.lname
+having sum(w.hours)>10;
+
+--(d)
+SELECT CONCAT(w.empno.fname, w.empno.lname),w.projno.project_name,w.projno.deptNo.deptno FROM works_on w 
+Order by w.projno.deptNo.deptno,w.empno.fname, w.empno.lname;
+
+
+--(e)
+SELECT distinct w.empno.empno, w.empno.salary  AS salary FROM works_on w WHERE w.projno.project_name = 'IOT';
+
+
